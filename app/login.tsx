@@ -30,7 +30,7 @@ const Page = () => {
             style={[styles.input, { flex: 1 }]}
             placeholder="Email address"
             placeholderTextColor={Colors.gray}
-            keyboardType="numeric"
+            keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
           />
