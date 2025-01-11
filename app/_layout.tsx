@@ -126,6 +126,7 @@ const InitialLayout = () => {
       />
       <Stack.Screen name="help" options={{ title: 'Help', presentation: 'modal' }} />
       <Stack.Screen name="(authenticated)/(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(authenticated)/(depositsFolder)" options={{ headerShown: false }} />
     </Stack>
 
   );

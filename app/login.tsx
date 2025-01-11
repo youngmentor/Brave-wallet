@@ -1,20 +1,46 @@
-import { View, Text, Platform, TouchableOpacity, KeyboardAvoidingView, StyleSheet, TextInput, Alert } from 'react-native'
+import { View, Text, Platform, TouchableOpacity, KeyboardAvoidingView, StyleSheet, TextInput, Alert, Button, Modal } from 'react-native'
 import React, { useState } from 'react'
 import { Link, useRouter } from 'expo-router';
 import { defaultStyles } from '@/constants/Styles';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import SecondaryButton from '@/components/btn';
+// import { KorapayProps } from '@/interface/korapaycheckoutInterface';
+// import Korapay from '@/hook/korapay';
+import { useKorapayCheckout } from '@/hook/korapaycheckout';
 
 
 const Page = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
+
+  const handlePayment = () => {
+    setIsPaymentModalVisible(!isPaymentModalVisible);
+  };
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
 
   const onSignIn = async () => {
     router.replace('/(authenticated)/(tabs)/home')
   };
+   let key = `key${Math.random()}`
+  const paymentConfig = {
+    publicKey: 'pk_test_he15XrzfEUVdK6cWaRbncZ76wfWFFYx5hnsSbQzS',
+    reference: key,
+    amount: 3000,
+    currency: 'NGN',
+    customer: {
+      name: 'John Doe',
+      email: 'john@doe.com'
+    }
+  };
+
+  const callbacks = {
+    onClose: () => console.log('Payment closed'),
+    onSuccess: (data: any) => console.log('Payment successful:', data),
+    onFailed: (data: any) => console.log('Payment failed:', data)
+  };
+  const { CheckoutComponent, initiatePayment } = useKorapayCheckout(paymentConfig, callbacks);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -48,7 +74,7 @@ const Page = () => {
           text="Continue"
           disabled={email === ''}
           buttonStyle={{ marginBottom: 20 }}
-          enabledStyle={{ backgroundColor:  Colors.primary }}
+          enabledStyle={{ backgroundColor: Colors.primary }}
           disabledStyle={{ backgroundColor: Colors.primaryMuted }}
           textStyle={{ color: email === '' ? '#fff' : '#fff' }}
         />
@@ -63,7 +89,7 @@ const Page = () => {
         </View>
 
         <TouchableOpacity
-          onPress={() => onSignIn()}
+          onPress={initiatePayment}
           style={[
             defaultStyles.pillButton,
             {
@@ -74,8 +100,10 @@ const Page = () => {
             },
           ]}>
           <Ionicons name="logo-google" size={24} color={'#000'} />
-          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Continue with Google </Text>
+          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Pay now </Text>
         </TouchableOpacity>
+        <CheckoutComponent />
+
         <Link href={'/signup'} replace asChild>
           <TouchableOpacity>
             <Text style={[defaultStyles.textLink, { marginTop: 20, marginLeft: 10 }]}>Don't have an account? Creacte account</Text>

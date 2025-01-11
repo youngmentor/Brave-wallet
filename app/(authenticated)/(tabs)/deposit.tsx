@@ -3,8 +3,10 @@ import React from 'react'
 import Colors from '@/constants/Colors'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { depositStyles } from '@/styleSheet/depositStyles'
+import { useRouter } from 'expo-router'
 
 const Page = () => {
+  const router = useRouter()
   return (
     <View
       style={[
@@ -51,10 +53,12 @@ const Page = () => {
           <View style={depositStyles.accountdetails}>
             <MaterialCommunityIcons name='cash' size={30} color={Colors.primary}/>
           </View>
-          <View style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <TouchableOpacity style={{ display: 'flex', flexDirection: 'column', gap: 5 }} onPress={()=>{
+            router.replace('/(authenticated)/(depositsFolder)/cashDeposit')
+          }}>
             <Text style={depositStyles.accountdetailsText}>Cash Deposit</Text>
             <Text style={depositStyles.accountdetailsText2}>Fund your account with nearby merchant</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={[depositStyles.balance, { backgroundColor: Colors.background, flexDirection: 'column', height: 80, justifyContent: 'center' }]}>
