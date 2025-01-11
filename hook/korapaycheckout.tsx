@@ -1,31 +1,41 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import WebView from 'react-native-webview';
-
+import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
+import { View } from 'react-native';
 interface KorapayCustomer {
-    name: string;
-    email: string;
+  name: string;
+  email: string;
 }
 
 interface KorapayConfig {
-    publicKey: string;
-    reference: string;
-    amount: number;
-    currency: string;
-    customer: KorapayCustomer;
+  publicKey: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  customer: KorapayCustomer;
 }
 
 interface KorapayCallbacks {
-    onClose?: () => void;
-    onSuccess?: (data: any) => void;
-    onFailed?: (data: any) => void;
+  onClose?: () => void;
+  onSuccess?: (data: any) => void;
+  onFailed?: (data: any) => void;
 }
 
-export const useKorapayCheckout = (config: KorapayConfig, callbacks: KorapayCallbacks = {}) => {
-    console.log('Configurations',config);
-    
-    const webViewRef = useRef<WebView | null>(null);
+export const useKorapayCheckout = ({
+  paymentDetails,
+  onClose,
+  onSuccess,
+  onFailed
+}: {
+  paymentDetails: KorapayConfig;
+  onClose?: KorapayCallbacks['onClose'];
+  onSuccess?: KorapayCallbacks['onSuccess'];
+  onFailed?: KorapayCallbacks['onFailed'];
+}) => {
+  const webViewRef = useRef<WebView | null>(null);
+  const [isCheckoutVisible, setIsCheckoutVisible] = useState(false);
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -37,16 +47,16 @@ export const useKorapayCheckout = (config: KorapayConfig, callbacks: KorapayCall
     </html>
   `;
 
-    const initializePaymentScript = `
+  const initializePaymentScript = `
     try {
       window.Korapay.initialize({
-        key: "${config.publicKey}",
-        reference: "${config.reference}",
-        amount: ${config.amount},
-        currency: "${config.currency}",
+        key: "${paymentDetails.publicKey}",
+        reference: "${paymentDetails.reference}",
+        amount: ${paymentDetails.amount},
+        currency: "${paymentDetails.currency}",
         customer: {
-          name: "${config.customer.name}",
-          email: "${config.customer.email}"
+          name: "${paymentDetails.customer.name}",
+          email: "${paymentDetails.customer.email}"
         },
         onClose: function () {
           window.ReactNativeWebView.postMessage('PAYMENT_CLOSED');
@@ -67,41 +77,48 @@ export const useKorapayCheckout = (config: KorapayConfig, callbacks: KorapayCall
     true;
   `;
 
-    const handleMessage = useCallback((event: { nativeEvent: { data: string } }) => {
-        const message = event.nativeEvent.data;
+  const handleMessage = useCallback((event: { nativeEvent: { data: string } }) => {
+    const message = event.nativeEvent.data;
 
-        if (message === 'PAYMENT_CLOSED') {
-            callbacks.onClose?.();
-            return;
-        }
+    if (message === 'PAYMENT_CLOSED') {
+      setIsCheckoutVisible(false); // Hide WebView when payment is closed
+      onClose?.();
+      return;
+    }
 
-        try {
-            const parsedMessage = JSON.parse(message);
-            if (parsedMessage.type === 'SUCCESS') {
-                callbacks.onSuccess?.(parsedMessage.data);
-            } else if (parsedMessage.type === 'FAILED') {
-                callbacks.onFailed?.(parsedMessage.data);
-            }
-        } catch (error) {
-            console.error('Error parsing WebView message:', error);
-        }
-    }, [callbacks]);
+    try {
+      const parsedMessage = JSON.parse(message);
+      if (parsedMessage.type === 'SUCCESS') {
+        setIsCheckoutVisible(false); // Hide WebView on success
+        onSuccess?.(parsedMessage.data);
+      } else if (parsedMessage.type === 'FAILED') {
+        setIsCheckoutVisible(false); // Hide WebView on failure
+        onFailed?.(parsedMessage.data);
+      }
+    } catch (error) {
+      console.error('Error parsing WebView message:', error);
+    }
+  }, [onClose, onSuccess, onFailed]);
 
-    const initiatePayment = useCallback(() => {
-        webViewRef.current?.injectJavaScript(initializePaymentScript);
-    }, [initializePaymentScript]);
+  const initiatePayment = useCallback(() => {
+    setIsCheckoutVisible(true); // Show WebView
+    setTimeout(() => {
+      webViewRef.current?.injectJavaScript(initializePaymentScript);
+    }, 500); 
+  }, [initializePaymentScript]);
 
-    const CheckoutComponent = useCallback(() => (
-        <WebView
-            ref={webViewRef}
-            source={{ html: htmlContent }}
-            onMessage={handleMessage}
-        />
-    ), [htmlContent, handleMessage]);
+  const CheckoutComponent = useCallback(() => (
+    isCheckoutVisible ? (
+      <WebView
+        ref={webViewRef}
+        source={{ html: htmlContent }}
+        onMessage={handleMessage}
+      />
+    ) : null
+  ), [htmlContent, handleMessage, isCheckoutVisible]);
 
-    return {
-        CheckoutComponent,
-        initiatePayment,
-        webViewRef
-    };
+  return {
+    CheckoutComponent,
+    initiatePayment
+  };
 };

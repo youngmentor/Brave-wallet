@@ -23,24 +23,27 @@ const Page = () => {
   const onSignIn = async () => {
     router.replace('/(authenticated)/(tabs)/home')
   };
-   let key = `key${Math.random()}`
-  const paymentConfig = {
-    publicKey: 'pk_test_he15XrzfEUVdK6cWaRbncZ76wfWFFYx5hnsSbQzS',
-    reference: key,
-    amount: 3000,
-    currency: 'NGN',
-    customer: {
-      name: 'John Doe',
-      email: 'john@doe.com'
-    }
-  };
 
-  const callbacks = {
-    onClose: () => console.log('Payment closed'),
-    onSuccess: (data: any) => console.log('Payment successful:', data),
-    onFailed: (data: any) => console.log('Payment failed:', data)
-  };
-  const { CheckoutComponent, initiatePayment } = useKorapayCheckout(paymentConfig, callbacks);
+
+
+  const { CheckoutComponent, initiatePayment } = useKorapayCheckout(
+    {
+      paymentDetails: {
+        publicKey: 'pk_test_ky3qHK1NAS7heBBWWDCo1P4ypMZMusUyRjJPGFDc',
+        reference: `key${Math.random()}`,
+        amount: 3000,
+        currency: 'NGN',
+        customer: {
+          name: 'John Doe',
+          email: 'john@doe.com'
+        }
+      },
+      onClose: () => console.log('Payment closed'),
+      onSuccess: (data: any) => console.log('Payment successful:', data),
+      onFailed: (data: any) => console.log('Payment failed:', data)
+    }
+  );
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -87,7 +90,7 @@ const Page = () => {
             style={{ flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: Colors.gray }}
           />
         </View>
-
+        <CheckoutComponent />
         <TouchableOpacity
           onPress={initiatePayment}
           style={[
@@ -102,8 +105,6 @@ const Page = () => {
           <Ionicons name="logo-google" size={24} color={'#000'} />
           <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Pay now </Text>
         </TouchableOpacity>
-        <CheckoutComponent />
-
         <Link href={'/signup'} replace asChild>
           <TouchableOpacity>
             <Text style={[defaultStyles.textLink, { marginTop: 20, marginLeft: 10 }]}>Don't have an account? Creacte account</Text>
