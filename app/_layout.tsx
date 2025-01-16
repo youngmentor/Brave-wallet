@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
@@ -10,27 +9,9 @@ import { useEffect } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import * as SecureStore from 'expo-secure-store';
 
 
 
-// Cache the Clerk JWT
-const tokenCache = {
-  async getToken(key: string) {
-    try {
-      return SecureStore.getItemAsync(key);
-    } catch (err) {
-      return null;
-    }
-  },
-  async saveToken(key: string, value: string) {
-    try {
-      return SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      return;
-    }
-  },
-};
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -126,7 +107,45 @@ const InitialLayout = () => {
       />
       <Stack.Screen name="help" options={{ title: 'Help', presentation: 'modal' }} />
       <Stack.Screen name="(authenticated)/(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(authenticated)/(depositsFolder)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(authenticated)/(depositsFolder)/cashDeposit"
+        options={{
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons name="arrow-back" size={34} color={Colors.dark} />
+            </TouchableOpacity>
+          ),
+
+        }}
+
+      />
+      <Stack.Screen
+        name="(authenticated)/(depositsFolder)/bankDeposit"
+        options={{
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons name="arrow-back" size={34} color={Colors.dark} />
+            </TouchableOpacity>
+          ),
+
+        }}
+
+      />
+            <Stack.Screen
+        name="(authenticated)/(depositsFolder)/cardDeposit"
+        options={{
+          title: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={router.back}>
+              <Ionicons name="arrow-back" size={34} color={Colors.dark} />
+            </TouchableOpacity>
+          ),
+
+        }}
+
+      />
     </Stack>
 
   );

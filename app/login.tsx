@@ -5,44 +5,15 @@ import { defaultStyles } from '@/constants/Styles';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import SecondaryButton from '@/components/btn';
-// import { KorapayProps } from '@/interface/korapaycheckoutInterface';
-// import Korapay from '@/hook/korapay';
-import { useKorapayCheckout } from '@/hook/korapaycheckout';
-
 
 const Page = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
-  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
-
-  const handlePayment = () => {
-    setIsPaymentModalVisible(!isPaymentModalVisible);
-  };
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
 
   const onSignIn = async () => {
     router.replace('/(authenticated)/(tabs)/home')
   };
-
-
-
-  const { CheckoutComponent, initiatePayment } = useKorapayCheckout(
-    {
-      paymentDetails: {
-        publicKey: 'pk_test_ky3qHK1NAS7heBBWWDCo1P4ypMZMusUyRjJPGFDc',
-        reference: `key${Math.random()}`,
-        amount: 3000,
-        currency: 'NGN',
-        customer: {
-          name: 'John Doe',
-          email: 'john@doe.com'
-        }
-      },
-      onClose: () => console.log('Payment closed'),
-      onSuccess: (data: any) => console.log('Payment successful:', data),
-      onFailed: (data: any) => console.log('Payment failed:', data)
-    }
-  );
 
   return (
     <KeyboardAvoidingView
@@ -90,9 +61,7 @@ const Page = () => {
             style={{ flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: Colors.gray }}
           />
         </View>
-        <CheckoutComponent />
         <TouchableOpacity
-          onPress={initiatePayment}
           style={[
             defaultStyles.pillButton,
             {
@@ -102,12 +71,25 @@ const Page = () => {
               backgroundColor: '#fff',
             },
           ]}>
-          <Ionicons name="logo-google" size={24} color={'#000'} />
-          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Pay now </Text>
+          <Ionicons name="logo-facebook" size={24} color={ Colors.primary} />
+          <Text style={[defaultStyles.buttonText, { color: Colors.primary }]}>Contiue with Facebook </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            defaultStyles.pillButton,
+            {
+              flexDirection: 'row',
+              gap: 16,
+              marginTop: 20,
+              backgroundColor: '#fff',
+            },
+          ]}>
+          <Ionicons name="logo-google" size={24} color={ Colors.primary} />
+          <Text style={[defaultStyles.buttonText, { color:  Colors.primary }]}>Continue with Google </Text>
         </TouchableOpacity>
         <Link href={'/signup'} replace asChild>
           <TouchableOpacity>
-            <Text style={[defaultStyles.textLink, { marginTop: 20, marginLeft: 10 }]}>Don't have an account? Creacte account</Text>
+            <Text style={[defaultStyles.textLink, { marginTop: 20, marginLeft: 10 , color: '#000'}]}>Don't have an account? Creacte account</Text>
           </TouchableOpacity>
         </Link>
       </View>

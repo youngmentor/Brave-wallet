@@ -1,11 +1,4 @@
-import KorapayCheckout from "@/hook/korapaycheckout";
-import { KorapayProps } from "../interface/korapaycheckoutInterface";
+import { useKorapayCheckout } from "./korapaycheckout";
 
 
-const Korapay = {
-  initializePayment: (props: KorapayProps) => {
-    return <KorapayCheckout {...props} />;
-  },
-};
-
-export default Korapay;
+export { useKorapayCheckout };
